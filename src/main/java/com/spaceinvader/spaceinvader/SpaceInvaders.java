@@ -164,7 +164,6 @@ public class SpaceInvaders extends Application {
                 player1.SetAlive(false);
                 root.getChildren().remove(player1.getView());
                 root.getChildren().remove(bullet.getView());
-                System.out.println(player1.color.toString() + " wins");
                 player1.canFireBullet = false;
             }
             if (bullet.isColliding(player2) && bullet.timer > 20){
@@ -172,8 +171,6 @@ public class SpaceInvaders extends Application {
                 player2.SetAlive(false);
                 root.getChildren().remove(player2.getView());
                 root.getChildren().remove(bullet.getView());
-                System.out.println(player2.color.toString() + " wins");
-                controller.setWinnerText();
                 player2.canFireBullet = false;
             }
             bullet.timer++;

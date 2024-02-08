@@ -5,7 +5,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.TriangleMesh;
 
 public class Player extends GameObject{
-    public Player() {
-        super(new Rectangle(40 , 20 , Color.BLACK));
+    public boolean canFireBullet = true;
+
+    public Player(Color color) {
+        super(new Rectangle(40 , 20 , color));
     }
 }
