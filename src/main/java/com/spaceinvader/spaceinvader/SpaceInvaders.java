@@ -17,14 +17,12 @@ import java.util.List;
 import java.util.Objects;
 
 public class SpaceInvaders extends Application {
-    private Pane root;
+    public Pane root;
     private List<GameObject> bullets = new ArrayList<GameObject>();
     private Player player1 , player2;
-    private SpaceInvadersController controller = new SpaceInvadersController();
-    private boolean isWPressed = false , isDPressed = false , isAPressed = false , isSPressed = false , isIPressed = false , isKPressed = false , isLPressed = false , isJPressed = false , isPlayer1Firing = false , isPlayer2Firing = false;
-    private Parent CreateContent() throws IOException{
+    public boolean isWPressed = false , isDPressed = false , isAPressed = false , isSPressed = false , isIPressed = false , isKPressed = false , isLPressed = false , isJPressed = false , isPlayer1Firing = false , isPlayer2Firing = false;
+    public Parent CreateContent(Stage stage) throws IOException{
         root = new Pane();
-        root.setPrefSize(800 , 800);
 
         player1 = new Player(Color.BLUE);
         player2 = new Player(Color.GREEN);
@@ -34,7 +32,7 @@ public class SpaceInvaders extends Application {
         AnimationTimer timer = new AnimationTimer() {
             @Override
             public void handle(long now) {
-                onUpdate();
+                onUpdate(stage);
             }
         };
 
@@ -51,7 +49,7 @@ public class SpaceInvaders extends Application {
         object.getView().setRotate(rot);
         root.getChildren().add(object.getView());
     }
-    private void onUpdate(){
+    private void onUpdate(Stage stage){
 
         if (player1.canFireBullet){
             if (isWPressed){
@@ -66,9 +64,10 @@ public class SpaceInvaders extends Application {
             if (isDPressed){
                 player1.rotateRight();
             }
-            if (isPlayer1Firing){
+            if (isPlayer1Firing && player1.fireRate <= 0){
                 Bullets bullet = new Bullets();
                 AddBullet(bullet , player1.getView().getTranslateX() , player1.getView().getTranslateY() , player1.getView().getRotate());
+                player1.fireRate = Player.fireRateValue;
             }
         }
         if (player2.canFireBullet){
@@ -84,25 +83,66 @@ public class SpaceInvaders extends Application {
             if (isLPressed){
                 player2.rotateRight();
             }
-            if (isPlayer2Firing) {
+            if (isPlayer2Firing && player2.fireRate <= 0) {
                 Bullets bullet = new Bullets();
                 AddBullet(bullet, player2.getView().getTranslateX(), player2.getView().getTranslateY(), player2.getView().getRotate());
+                player2.fireRate = Player.fireRateValue;
             }
         }
-        root.setOnKeyPressed(e -> {
+
+        //check for collision between players and bullets
+        for(GameObject bullet : bullets){
+            if (bullet.isColliding(player1) && bullet.timer > 20){
+                bullet.SetAlive(false);
+                player1.SetAlive(false);
+                root.getChildren().remove(player1.getView());
+                root.getChildren().remove(bullet.getView());
+                player1.canFireBullet = false;
+
+                SpaceInvadersController controller = new SpaceInvadersController();
+                controller.changeLabel2(root);
+            }
+            if (bullet.isColliding(player2) && bullet.timer > 20){
+                bullet.SetAlive(false);
+                player2.SetAlive(false);
+                root.getChildren().remove(player2.getView());
+                root.getChildren().remove(bullet.getView());
+                player2.canFireBullet = false;
+
+                SpaceInvadersController controller = new SpaceInvadersController();
+                controller.changeLabel(root);
+            }
+            bullet.timer++;
+        }
+        //checks is objects are alive or not if yes remove them
+        bullets.removeIf(GameObject::isDead);
+        bullets.forEach(GameObject::update);
+
+        player1.fireRate--;
+        player2.fireRate--;
+    }
+    @Override
+    public void start(Stage stage) throws IOException {
+        Scene scene  = new Scene(CreateContent(stage));
+        StageSettings.CreateStage(stage , scene);
+        Pane fxmlLoader = FXMLLoader.load(Objects.requireNonNull(SpaceInvaders.class.getResource("hello-view.fxml")));
+        root.getChildren().add(fxmlLoader);
+
+        stage.getScene().setOnKeyPressed(e -> {
+            System.out.println(e.getCode());
             if (e.getCode() == KeyCode.ESCAPE){
                 System.exit(0);
             }
-            if (e.getCode() == KeyCode.I){
+            if (e.getCode() == KeyCode.NUMPAD8){
                 isIPressed = true;
             }
-            if (e.getCode() == KeyCode.K){
+            if (e.getCode() == KeyCode.NUMPAD5){
                 isKPressed = true;
             }
-            if (e.getCode() == KeyCode.L){
+            if (e.getCode() == KeyCode.NUMPAD6){
                 isLPressed = true;
             }
-            if (e.getCode() == KeyCode.H){
+            if (e.getCode() == KeyCode.NUMPAD4){
                 isJPressed = true;
             }
             if (e.getCode() == KeyCode.W){
@@ -120,11 +160,11 @@ public class SpaceInvaders extends Application {
             if (e.getCode() == KeyCode.Q){
                 isPlayer1Firing = true;
             }
-            if (e.getCode() == KeyCode.U){
+            if (e.getCode() == KeyCode.NUMPAD7){
                 isPlayer2Firing = true;
             }
         });
-        root.setOnKeyReleased(e -> {
+        stage.getScene().setOnKeyReleased(e -> {
 
             if (e.getCode() == KeyCode.W){
                 isWPressed = false;
@@ -132,16 +172,16 @@ public class SpaceInvaders extends Application {
             if (e.getCode() == KeyCode.D){
                 isDPressed = false;
             }
-            if (e.getCode() == KeyCode.I){
+            if (e.getCode() == KeyCode.NUMPAD8){
                 isIPressed = false;
             }
-            if (e.getCode() == KeyCode.K){
+            if (e.getCode() == KeyCode.NUMPAD5){
                 isKPressed = false;
             }
-            if (e.getCode() == KeyCode.H){
+            if (e.getCode() == KeyCode.NUMPAD4){
                 isJPressed = false;
             }
-            if (e.getCode() == KeyCode.L){
+            if (e.getCode() == KeyCode.NUMPAD6){
                 isLPressed = false;
             }
             if (e.getCode() == KeyCode.A){
@@ -153,40 +193,12 @@ public class SpaceInvaders extends Application {
             if (e.getCode() == KeyCode.Q){
                 isPlayer1Firing = false;
             }
-            if (e.getCode() == KeyCode.U){
+            if (e.getCode() == KeyCode.NUMPAD7){
                 isPlayer2Firing = false;
             }
         });
-        //check for collision between players and bullets
-        for(GameObject bullet : bullets){
-            if (bullet.isColliding(player1) && bullet.timer > 20){
-                bullet.SetAlive(false);
-                player1.SetAlive(false);
-                root.getChildren().remove(player1.getView());
-                root.getChildren().remove(bullet.getView());
-                player1.canFireBullet = false;
-            }
-            if (bullet.isColliding(player2) && bullet.timer > 20){
-                bullet.SetAlive(false);
-                player2.SetAlive(false);
-                root.getChildren().remove(player2.getView());
-                root.getChildren().remove(bullet.getView());
-                player2.canFireBullet = false;
-            }
-            bullet.timer++;
-        }
-        //checks is objects are alive or not if yes remove them
-        bullets.removeIf(GameObject::isDead);
-        bullets.forEach(GameObject::update);
-    }
-    @Override
-    public void start(Stage stage) throws IOException {
-        StageSettings.CreateStage(stage , new Scene(CreateContent()));
-        Pane fxmlLoader = FXMLLoader.load(Objects.requireNonNull(SpaceInvaders.class.getResource("hello-view.fxml")));
-        root.getChildren().add(fxmlLoader);
-
     }
     public static void main(String[] args) {
-        launch();
+        launch(args);
     }
 }
