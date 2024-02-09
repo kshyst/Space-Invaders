@@ -2,13 +2,25 @@ package com.spaceinvader.spaceinvader;
 
 import javafx.geometry.Point2D;
 import javafx.scene.Node;
+import javafx.scene.image.Image;
+import javafx.scene.paint.Color;
+import javafx.scene.paint.ImagePattern;
+import java.io.File;
+
+import java.util.Objects;
 
 public class GameObject {
     public int timer = 0;
-    private Node view;
-    public GameObject(Node view){
+    public Node view;
+    Image image = new Image(new File("src/main/resources/com/spaceinvader/spaceinvader/Sprites/Main Ship - Base - Slight damage.png").toURI().toString());
+    public GameObject(Node view , String objectType){
         this.view = view;
+        if (Objects.equals(objectType, "Player")){
+            ImagePattern imagePattern = new ImagePattern(image , 0 , 0 , 1 , 1 , true);
+            ((javafx.scene.shape.Rectangle) view).setFill(imagePattern);
+        }
     }
+
     public Node getView(){
         return view;
     }

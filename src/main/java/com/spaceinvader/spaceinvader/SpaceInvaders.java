@@ -5,8 +5,9 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.Label;
+import javafx.scene.effect.BlendMode;
 import javafx.scene.input.KeyCode;
+import javafx.scene.layout.Background;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
@@ -24,8 +25,10 @@ public class SpaceInvaders extends Application {
     public Parent CreateContent(Stage stage) throws IOException{
         root = new Pane();
 
-        player1 = new Player(Color.BLUE);
-        player2 = new Player(Color.GREEN);
+        player1 = new Player(Color.BLUE );
+        player2 = new Player(Color.GREEN );
+
+        player1.view.setBlendMode(BlendMode.DIFFERENCE);
 
         AddGameObject(player1 , 100 , 100 , 0);
         AddGameObject(player2 , 700 , 700 , 0);
@@ -37,6 +40,8 @@ public class SpaceInvaders extends Application {
         };
 
         timer.start();
+
+        root.setBackground(Background.fill(Color.BLACK));
         return root;
     }
     private void AddBullet(GameObject bullet , double x , double y , double rot){
@@ -92,7 +97,7 @@ public class SpaceInvaders extends Application {
 
         //check for collision between players and bullets
         for(GameObject bullet : bullets){
-            if (bullet.isColliding(player1) && bullet.timer > 20){
+            if (bullet.isColliding(player1) && bullet.timer > 40){
                 bullet.SetAlive(false);
                 player1.SetAlive(false);
                 root.getChildren().remove(player1.getView());
@@ -102,7 +107,7 @@ public class SpaceInvaders extends Application {
                 SpaceInvadersController controller = new SpaceInvadersController();
                 controller.changeLabel2(root);
             }
-            if (bullet.isColliding(player2) && bullet.timer > 20){
+            if (bullet.isColliding(player2) && bullet.timer > 40){
                 bullet.SetAlive(false);
                 player2.SetAlive(false);
                 root.getChildren().remove(player2.getView());

@@ -7,6 +7,6 @@ import javafx.scene.shape.Circle;
 public class Bullets extends GameObject{
 
     public Bullets() {
-        super(new Circle(5 , 5 , 5 , Color.RED));
+        super(new Circle(5 , 5 , 5 , Color.RED) , "Bullet");
     }
 }
